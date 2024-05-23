@@ -30,16 +30,19 @@
       "value": "${AZURE_OPENAI_RESOURCE_GROUP}"
     },
     "openAiResourceGroupLocation": {
-      "value": "${AZURE_OPENAI_RESOURCE_LOCATION=${AZURE_LOCATION}}"
+      "value": "${AZURE_OPENAI_RESOURCE_LOCATION=canadaeast}"
     },
-    "chatGptDeploymentName": {
-      "value": "${AZURE_OPENAI_CHATGPT_DEPLOYMENT=chat}"
+    "azureChatGptDeploymentName": {
+      "value": "${AZURE_OPENAI_CHATGPT_DEPLOYMENT=chat-playground}"
     },
-    "embeddingDeploymentName": {
-      "value": "${AZURE_OPENAI_EMBEDDING_DEPLOYMENT=embedding}"
+    "azureEmbeddingDeploymentName": {
+      "value": "${AZURE_OPENAI_EMBEDDING_DEPLOYMENT=my-text-embedding-ada-002}"
     },
     "openAiServiceName": {
-      "value": "${AZURE_OPENAI_SERVICE}"
+      "value": "${AZURE_OPENAI_SERVICE=oai-ayounes-ce}"
+    },
+    "azureOpenaiEndPoint": {
+      "value": "${AZURE_OPENAI_ENDPOINT=https://oai-ayounes-ce.openai.azure.com/}"
     },
     "openAiSkuName": {
       "value": "S0"
@@ -60,7 +63,7 @@
       "value": "${AZURE_SEARCH_SERVICE_RESOURCE_GROUP}"
     },
     "searchServiceSkuName": {
-      "value": "standard"
+      "value": "basic"
     },
     "storageAccountName": {
       "value": "${AZURE_STORAGE_ACCOUNT}"
@@ -78,7 +81,7 @@
       "value": "${AZURE_USE_APPLICATION_INSIGHTS=true}"
     },
     "openAIApiKey": {
-      "value": "${OPENAI_API_KEY}"
+      "value": "${OPENAI_API_KEY=cd17fbcf75334f138b2bab8983b89151}"
     },
     "useAOAI": {
       "value": "${USE_AOAI=true}"
@@ -90,16 +93,16 @@
       "value": "${USE_VISION=false}"
     },
     "openAiChatGptDeployment": {
-      "value": "${OPENAI_CHATGPT_DEPLOYMENT=gpt-3.5-turbo}"
+      "value": "${OPENAI_CHATGPT_DEPLOYMENT=chat-playground}"
     },
     "openAiEmbeddingDeployment": {
-      "value": "${OPENAI_EMBEDDING_DEPLOYMENT=text-embedding-ada-002}"
+      "value": "${OPENAI_EMBEDDING_DEPLOYMENT=my-text-embedding-ada-002}"
     },
     "azureOpenAIChatGptModelVersion": {
-      "value": "${AZURE_OPENAI_CHATGPT_MODEL_VERSION=0613}"
+      "value": "${AZURE_OPENAI_CHATGPT_MODEL_VERSION=1106-Preview}"
     },
     "azureOpenAIChatGptModelName": {
-      "value": "${AZURE_OPENAI_CHATGPT_MODEL_NAME=gpt-35-turbo}"
+      "value": "${AZURE_OPENAI_CHATGPT_MODEL_NAME=gpt-4}"
     },
     "azureOpenAIChatGptDeploymentCapacity": {
       "value": "${AZURE_OPENAI_CHATGPT_DEPLOYMENT_CAPACITY=30}"

@@ -45,8 +45,8 @@ public class ReadRetrieveReadChatService
             {
                 var endpoint = configuration["AzureOpenAiServiceEndpoint"];
                 ArgumentNullException.ThrowIfNullOrWhiteSpace(endpoint);
-                kernelBuilder = kernelBuilder.AddAzureOpenAITextEmbeddingGeneration(embeddingModelName, endpoint, tokenCredential ?? new DefaultAzureCredential());
-                kernelBuilder = kernelBuilder.AddAzureOpenAIChatCompletion(deployedModelName, endpoint, tokenCredential ?? new DefaultAzureCredential());
+                kernelBuilder = kernelBuilder.AddAzureOpenAITextEmbeddingGeneration(embeddingModelName, client);
+                kernelBuilder = kernelBuilder.AddAzureOpenAIChatCompletion(deployedModelName, client);
             }
         }
 

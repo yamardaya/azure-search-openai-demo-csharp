@@ -178,9 +178,15 @@ internal static partial class Program
                {
                    var endpoint = o.AzureOpenAIServiceEndpoint;
                    ArgumentNullException.ThrowIfNullOrEmpty(endpoint);
+
+                  var openAIApiKey = Environment.GetEnvironmentVariable("OPENAI_API_KEY");
+                  ArgumentNullException.ThrowIfNullOrEmpty(openAIApiKey);
+
+                  var openaiCredential = new AzureKeyCredential(openAIApiKey);
+
                    s_openAIClient = new OpenAIClient(
                        new Uri(endpoint),
-                       DefaultCredential);
+                       openaiCredential);
                }
            }
            await Task.CompletedTask;

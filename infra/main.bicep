@@ -38,7 +38,7 @@ param appServicePlanName string = ''
 param chatGptDeploymentCapacity int = 10
 
 @description('Name of the chat GPT deployment')
-param azureChatGptDeploymentName string = 'chat'
+param azureChatGptDeploymentName string = 'chat-playground'
 
 @description('Name of the Azure Cognitive Services Computer Vision service')
 param computerVisionServiceName string = ''
@@ -52,14 +52,20 @@ param computerVisionResourceGroupLocation string = 'eastus' // Vision vectorize 
 @description('SKU name for the Azure Cognitive Services Computer Vision service. Default: S1')
 param computerVisionSkuName string = 'S1'
 
+@description('Azure Open AI end point')
+param azureOpenaiEndPoint string = 'https://api.openai.com'
+
+@description('Name of the Azure OpenAI Services')
+param azureOpenAiServiceName string = 'openai'
+
 @description('Name of the embedding deployment. Default: embedding')
-param azureEmbeddingDeploymentName string = 'embedding'
+param azureEmbeddingDeploymentName string = 'my-text-embedding-ada-002'
 
 @description('Capacity of the embedding deployment. Default: 30')
 param embeddingDeploymentCapacity int = 30
 
 @description('Name of the embedding model. Default: text-embedding-ada-002')
-param azureEmbeddingModelName string = 'text-embedding-ada-002'
+param azureEmbeddingModelName string = 'my-text-embedding-ada-002'
 
 @description('Name of the container apps environment')
 param containerAppsEnvironmentName string = ''
@@ -80,7 +86,7 @@ param formRecognizerResourceGroupName string = ''
 param formRecognizerServiceName string = ''
 
 @description('SKU name for the Form Recognizer service. Default: S0')
-param formRecognizerSkuName string = 'S0'
+param formRecognizerSkuName string = 'F0'
 
 @description('Name of the Azure Function App')
 param functionServiceName string = ''
@@ -128,7 +134,7 @@ param searchServiceResourceGroupLocation string = location
 param searchServiceResourceGroupName string = ''
 
 @description('SKU name for the Azure Cognitive Search service. Default: standard')
-param searchServiceSkuName string = 'standard'
+param searchServiceSkuName string = 'free'
 
 @description('Name of the storage account')
 param storageAccountName string = ''
@@ -170,7 +176,7 @@ param openAiEmbeddingDeployment string
 param useVision bool = false
 
 var abbrs = loadJsonContent('./abbreviations.json')
-var resourceToken = toLower(uniqueString(subscription().id, environmentName, location))
+var resourceToken = toLower(uniqueString(subscription().id, environmentName, location,'2'))
 
 var baseTags = { 'azd-env-name': environmentName }
 var updatedTags = union(empty(tags) ? {} : base64ToJson(tags), baseTags)
@@ -254,7 +260,7 @@ module keyVaultSecrets 'core/security/keyvault-secrets.bicep' = {
     useAOAI ? [
       {
         name: 'AzureOpenAiServiceEndpoint'
-        value: azureOpenAi.outputs.endpoint
+        value: azureOpenaiEndPoint
       }
       {
         name: 'AzureOpenAiChatGptDeployment'
@@ -263,6 +269,10 @@ module keyVaultSecrets 'core/security/keyvault-secrets.bicep' = {
       {
         name: 'AzureOpenAiEmbeddingDeployment'
         value: azureEmbeddingDeploymentName
+      }
+      {
+        name: 'OpenAIAPIKey'
+        value: openAIApiKey
       }
     ] : [
       {
@@ -324,10 +334,10 @@ module web './app/web.bicep' = {
     formRecognizerEndpoint: formRecognizer.outputs.endpoint
     computerVisionEndpoint: useVision ? computerVision.outputs.endpoint : ''
     useVision: useVision
-    openAiApiKey: useAOAI ? '' : openAIApiKey
-    openAiEndpoint: useAOAI ? azureOpenAi.outputs.endpoint : ''
-    openAiChatGptDeployment: useAOAI ? azureChatGptDeploymentName : ''
-    openAiEmbeddingDeployment: useAOAI ? azureEmbeddingDeploymentName : ''
+    openAiApiKey: openAIApiKey 
+    openAiEndpoint: azureOpenaiEndPoint
+    openAiChatGptDeployment: azureChatGptDeploymentName 
+    openAiEmbeddingDeployment: azureEmbeddingDeploymentName
     serviceBinds: []
   }
 }
@@ -365,13 +375,13 @@ module function './app/function.bicep' = {
       AZURE_SEARCH_SERVICE_ENDPOINT: searchService.outputs.endpoint
       AZURE_SEARCH_INDEX: searchIndexName
       AZURE_STORAGE_BLOB_ENDPOINT: storage.outputs.primaryEndpoints.blob
-      AZURE_OPENAI_EMBEDDING_DEPLOYMENT: useAOAI ? azureEmbeddingDeploymentName : ''
-      OPENAI_EMBEDDING_DEPLOYMENT: useAOAI ? '' : openAiEmbeddingDeployment
-      AZURE_OPENAI_ENDPOINT: useAOAI ? azureOpenAi.outputs.endpoint : ''
+      AZURE_OPENAI_EMBEDDING_DEPLOYMENT: azureEmbeddingDeploymentName
+      OPENAI_EMBEDDING_DEPLOYMENT: openAiEmbeddingDeployment
+      AZURE_OPENAI_ENDPOINT:  azureOpenaiEndPoint
       USE_VISION: string(useVision)
       USE_AOAI: string(useAOAI)
       AZURE_COMPUTER_VISION_ENDPOINT: useVision ? computerVision.outputs.endpoint : ''
-      OPENAI_API_KEY: useAOAI ? '' : openAIApiKey
+      OPENAI_API_KEY: openAIApiKey
     }
   }
 }
@@ -391,7 +401,7 @@ module monitoring 'core/monitor/monitoring.bicep' = {
   }
 }
 
-module azureOpenAi 'core/ai/cognitiveservices.bicep' = if (useAOAI) {
+/*module azureOpenAi 'core/ai/cognitiveservices.bicep' = if (useAOAI) {
   name: 'openai'
   scope: azureOpenAiResourceGroup
   params: {
@@ -443,7 +453,7 @@ module azureOpenAi 'core/ai/cognitiveservices.bicep' = if (useAOAI) {
       }
     ])
   }
-}
+}*/
 
 // create computer vision for image embedding && text embedding api
 module computerVision 'core/ai/cognitiveservices.bicep' = if (useVision) {
@@ -599,7 +609,7 @@ module visionRoleUser 'core/security/role.bicep' = if (useVision) {
 }
 
 // FUNCTION ROLES
-module AzureOpenAiRoleFunction 'core/security/role.bicep' = if (useAOAI) {
+/*module AzureOpenAiRoleFunction 'core/security/role.bicep' = if (useAOAI) {
   scope: azureOpenAiResourceGroup
   name: 'openai-role-function'
   params: {
@@ -607,7 +617,7 @@ module AzureOpenAiRoleFunction 'core/security/role.bicep' = if (useAOAI) {
     roleDefinitionId: '5e0bd9bd-7b93-4f28-af87-19fc36ad61bd'
     principalType: 'ServicePrincipal'
   }
-}
+}*/
 
 module formRecognizerRoleFunction 'core/security/role.bicep' = {
   scope: formRecognizerResourceGroup
@@ -749,11 +759,12 @@ output AZURE_LOCATION string = location
 output AZURE_OPENAI_RESOURCE_LOCATION string = openAiResourceGroupLocation
 output AZURE_OPENAI_CHATGPT_DEPLOYMENT string = azureChatGptDeploymentName
 output AZURE_OPENAI_EMBEDDING_DEPLOYMENT string = azureEmbeddingDeploymentName
-output AZURE_OPENAI_ENDPOINT string = useAOAI? azureOpenAi.outputs.endpoint : ''
+output AZURE_OPENAI_ENDPOINT string = useAOAI? azureOpenaiEndPoint : ''
 output AZURE_OPENAI_RESOURCE_GROUP string = useAOAI ? azureOpenAiResourceGroup.name : ''
-output AZURE_OPENAI_SERVICE string = useAOAI ? azureOpenAi.outputs.name : ''
+output AZURE_OPENAI_SERVICE string = useAOAI ? azureOpenAiServiceName : ''
 output AZURE_RESOURCE_GROUP string = resourceGroup.name
 output AZURE_SEARCH_INDEX string = searchIndexName
+output OPENAI_API_KEY string = openAIApiKey 
 output AZURE_SEARCH_SERVICE string = searchService.outputs.name
 output AZURE_SEARCH_SERVICE_ENDPOINT string = searchService.outputs.endpoint
 output AZURE_SEARCH_SERVICE_RESOURCE_GROUP string = searchServiceResourceGroup.name
