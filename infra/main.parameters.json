@@ -81,7 +81,7 @@
       "value": "${AZURE_USE_APPLICATION_INSIGHTS=true}"
     },
     "openAIApiKey": {
-      "value": "${OPENAI_API_KEY=cd17fbcf75334f138b2bab8983b89151}"
+      "value": "${OPENAI_API_KEY}"
     },
     "useAOAI": {
       "value": "${USE_AOAI=true}"
